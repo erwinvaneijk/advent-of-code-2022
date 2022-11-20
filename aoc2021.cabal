@@ -205,7 +205,7 @@ library
 
 executable aoc2021
   import: common-options
-  main-is: aoc.hs
+  main-is: main.hs
   hs-source-dirs:
       app
   build-depends:
