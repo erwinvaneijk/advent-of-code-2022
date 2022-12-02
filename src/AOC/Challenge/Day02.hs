@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
-
 -- |
 -- Module      : AOC.Challenge.Day02
 -- License     : BSD3
@@ -22,29 +19,11 @@
 --     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day02 (
-    -- day02a
-  -- , day02b
+    day02a
+  , day02b
   ) where
 
-import           AOC.Prelude
-
-import qualified Data.Graph.Inductive           as G
-import qualified Data.IntMap                    as IM
-import qualified Data.IntSet                    as IS
-import qualified Data.List.NonEmpty             as NE
-import qualified Data.List.PointedList          as PL
-import qualified Data.List.PointedList.Circular as PLC
-import qualified Data.Map                       as M
-import qualified Data.OrdPSQ                    as PSQ
-import qualified Data.Sequence                  as Seq
-import qualified Data.Set                       as S
-import qualified Data.Text                      as T
-import qualified Data.Vector                    as V
-import qualified Linear                         as L
-import qualified Text.Megaparsec                as P
-import qualified Text.Megaparsec.Char           as P
-import qualified Text.Megaparsec.Char.Lexer     as PP
-
+import           AOC.Solver ((:~>)(..))
 import Data.List.Split (splitOn)
 
 -- A, X = Rock, 1
@@ -63,8 +42,28 @@ rockPaperScissors ["C", "Y"] = 2 + 0
 rockPaperScissors ["C", "Z"] = 3 + 3
 rockPaperScissors _ = -1
 
-doGame :: [[String]] -> Int
-doGame xs = sum $ map rockPaperScissors xs
+-- A = Rock, 1
+-- B = Paper, 2
+-- C = Scissors, 3
+-- Loss = X, Draw = Y, Win = Z
+rockPaperScissorsRules2 :: [String] -> Int
+rockPaperScissorsRules2 ["A", "X"] = 3
+rockPaperScissorsRules2 ["A", "Y"] = 1 + 3
+rockPaperScissorsRules2 ["A", "Z"] = 2 + 6
+rockPaperScissorsRules2 ["B", "X"] = 1 + 0
+rockPaperScissorsRules2 ["B", "Y"] = 2 + 3
+rockPaperScissorsRules2 ["B", "Z"] = 3 + 6
+rockPaperScissorsRules2 ["C", "X"] = 2 + 0
+rockPaperScissorsRules2 ["C", "Y"] = 3 + 3
+rockPaperScissorsRules2 ["C", "Z"] = 1 + 6
+rockPaperScissorsRules2 _ = -1
+
+
+doGame1 :: [[String]] -> Int
+doGame1 xs = sum $ map rockPaperScissors xs
+
+doGame2 :: [[String]] -> Int
+doGame2 xs = sum $ map rockPaperScissorsRules2 xs
 
 parseInput :: String -> Maybe [[String]]
 --parseInput = traverse readMaybe . lines
@@ -74,12 +73,12 @@ day02a :: [[String]] :~> Int
 day02a = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . doGame
+    , sSolve = Just . doGame1
     }
 
 day02b :: [[String]] :~> Int
 day02b = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . doGame
+    , sSolve = Just . doGame2
     }
