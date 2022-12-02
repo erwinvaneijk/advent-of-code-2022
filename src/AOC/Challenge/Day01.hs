@@ -15,25 +15,40 @@ module AOC.Challenge.Day01 (
 
 import           AOC.Solver ((:~>)(..))
 import           AOC.Common (laggedPairs, countTrue)
+import           Data.Maybe (fromJust)
+import           Data.List (sort)
+import           Data.List.Split (splitWhen)
 import           Text.Read (readMaybe)
 
-parseInput :: String -> Maybe [Int]
-parseInput = traverse readMaybe . lines
+stringToMaybeNumber :: String -> Int
+stringToMaybeNumber s
+  | length s == 0 = -1
+  | otherwise     = fromJust (readMaybe s :: Maybe Int)
 
-countIncreases :: Int -> [Int] -> Int
-countIncreases n = countTrue (uncurry (<)) . laggedPairs n
+parseInput :: String -> Maybe [[Int]]
+--parseInput = traverse readMaybe . lines
+parseInput = Just . splitWhen (<0) . map stringToMaybeNumber . lines
 
-day01a :: [Int] :~> Int
+elfWeights :: [[Int]] -> [Int]
+elfWeights = map sum
+
+largestElf :: [[Int]] -> Int
+largestElf xs = maximum $ elfWeights xs
+
+largestElves :: Int -> [[Int]] -> [Int]
+largestElves n xs = take n $ reverse $ sort $ elfWeights xs
+
+day01a :: [[Int]] :~> Int
 day01a = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . countIncreases 1
+    , sSolve = Just . largestElf
     }
 
-day01b :: [Int] :~> Int
+day01b :: [[Int]] :~> Int
 day01b = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . countIncreases 3
+    , sSolve = Just . sum . largestElves 3
     }
 

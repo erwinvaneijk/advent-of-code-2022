@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unused-imports   #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 -- |
 -- Module      : AOC.Challenge.Day10
 -- License     : BSD3
@@ -5,95 +8,53 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Day 10.  See "AOC.Solver" for the types used in this module!
+-- Day ${day_short}.  See "AOC.Solver" for the types used in this module!
+--
+-- After completing the challenge, it is recommended to:
+--
+-- *   Replace "AOC.Prelude" imports to specific modules (with explicit
+--     imports) for readability.
+-- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
+--     pragmas.
+-- *   Replace the partial type signatures underscores in the solution
+--     types @_ :~> _@ with the actual types of inputs and outputs of the
+--     solution.  You can delete the type signatures completely and GHC
+--     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day10 (
-    day10a
-  , day10b
+    -- day10a
+  -- , day10b
   ) where
 
-import           AOC.Solver ((:~>)(..))
-import           Control.DeepSeq (NFData)
-import           GHC.Generics (Generic)
-import           Data.Maybe (mapMaybe)
-import           AOC.Common (traverseLines)
-import           Data.List (sort)
+import           AOC.Prelude
 
-data Bracket = Round | Square | Curly | Angle
-  deriving stock (Eq, Show, Ord, Generic)
-  deriving anyclass (NFData)
-data Direction = Open | Close
-  deriving stock (Eq, Show, Ord, Generic)
-  deriving anyclass (NFData)
+import qualified Data.Graph.Inductive           as G
+import qualified Data.IntMap                    as IM
+import qualified Data.IntSet                    as IS
+import qualified Data.List.NonEmpty             as NE
+import qualified Data.List.PointedList          as PL
+import qualified Data.List.PointedList.Circular as PLC
+import qualified Data.Map                       as M
+import qualified Data.OrdPSQ                    as PSQ
+import qualified Data.Sequence                  as Seq
+import qualified Data.Set                       as S
+import qualified Data.Text                      as T
+import qualified Data.Vector                    as V
+import qualified Linear                         as L
+import qualified Text.Megaparsec                as P
+import qualified Text.Megaparsec.Char           as P
+import qualified Text.Megaparsec.Char.Lexer     as PP
 
-data Symbol = Symbol { direction :: Direction, bracket :: Bracket }
-  deriving stock (Eq, Show, Ord, Generic)
-  deriving anyclass (NFData)
-
--- | Left: error (with offending bracket)
--- Right: no error, but a list of leftover incompletes
-runSymbols :: [Symbol] -> Either Bracket [Bracket]
-runSymbols = go []
-  where
-    go stk = \case
-      Symbol Close b:xs -> case stk of
-        s:ss | s == b -> go ss xs
-        _             -> Left b
-      Symbol Open b:xs  -> go (b:stk) xs
-      []                -> Right stk
-
-parseString :: String -> Maybe [Symbol]
-parseString = traverse lookupSymbol
-  where
-    lookupSymbol = \case
-      '(' -> Just $ Symbol Open Round
-      '[' -> Just $ Symbol Open Square
-      '{' -> Just $ Symbol Open Curly
-      '<' -> Just $ Symbol Open Angle
-      ')' -> Just $ Symbol Close Round
-      ']' -> Just $ Symbol Close Square
-      '}' -> Just $ Symbol Close Curly
-      '>' -> Just $ Symbol Close Angle
-      _   -> Nothing
-
-day10a :: [[Symbol]] :~> Int
+day10a :: _ :~> _
 day10a = MkSol
-    { sParse = traverseLines parseString
+    { sParse = Just . lines
     , sShow  = show
-    , sSolve = Just . sum . map (either bracketScore (const 0) . runSymbols)
+    , sSolve = Just
     }
-  where
-    bracketScore :: Bracket -> Int
-    bracketScore = \case
-      Round  -> 3
-      Square -> 57
-      Curly  -> 1197
-      Angle  -> 25137
 
-day10b :: [[Symbol]] :~> Int
+day10b :: _ :~> _
 day10b = MkSol
     { sParse = sParse day10a
     , sShow  = show
-    , sSolve = takeMid . sort . mapMaybe (either (const Nothing) (Just . getScore) . runSymbols)
+    , sSolve = Just
     }
-  where
-    getScore :: [Bracket] -> Int
-    getScore = go 0
-      where
-        go !n (b:xs) = go (n * 5 + bracketScore b) xs
-        go !n [] = n
-    bracketScore = \case
-      Round  -> 1
-      Square -> 2
-      Curly  -> 3
-      Angle  -> 4
-
--- | Return the middle item in a list.  Step through the list at two
--- different speeds and return when the double-speed one hits the end.
-takeMid :: [a] -> Maybe a
-takeMid qs = go qs qs
-  where
-    go (_:xs) (_:_:ys) = go xs ys
-    go (x:_) _ = Just x
-    go [] _ = Nothing
-

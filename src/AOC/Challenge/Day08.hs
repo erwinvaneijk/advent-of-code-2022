@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -Wno-redundant-constraints   #-}
+{-# OPTIONS_GHC -Wno-unused-imports   #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
 -- Module      : AOC.Challenge.Day08
@@ -7,109 +8,53 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Day 8.  See "AOC.Solver" for the types used in this module!
+-- Day ${day_short}.  See "AOC.Solver" for the types used in this module!
+--
+-- After completing the challenge, it is recommended to:
+--
+-- *   Replace "AOC.Prelude" imports to specific modules (with explicit
+--     imports) for readability.
+-- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
+--     pragmas.
+-- *   Replace the partial type signatures underscores in the solution
+--     types @_ :~> _@ with the actual types of inputs and outputs of the
+--     solution.  You can delete the type signatures completely and GHC
+--     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day08 (
-    day08a
-  , day08b
+    -- day08a
+  -- , day08b
   ) where
 
-import           AOC.Common             (listTup, traverseLines, countTrue)
-import           AOC.Common.FinitarySet (FinitarySet)
-import           AOC.Solver             ((:~>)(..))
-import           Control.Lens           (Prism', prism', preview)
-import           Data.Bifunctor         (first)
-import           Data.Char              (chr, ord)
-import           Data.Finitary          (Finitary)
-import           Data.Finite            (Finite, finites, packFinite, getFinite)
-import           Data.Foldable          (toList)
-import           Data.List              (permutations)
-import           Data.List.Split        (splitOn)
-import           Data.Map               (Map)
-import           Data.Maybe             (mapMaybe)
-import qualified AOC.Common.FinitarySet as FS
-import qualified Data.Map               as M
-import qualified Data.Set               as S
+import           AOC.Prelude
 
--- way too much type safety
+import qualified Data.Graph.Inductive           as G
+import qualified Data.IntMap                    as IM
+import qualified Data.IntSet                    as IS
+import qualified Data.List.NonEmpty             as NE
+import qualified Data.List.PointedList          as PL
+import qualified Data.List.PointedList.Circular as PLC
+import qualified Data.Map                       as M
+import qualified Data.OrdPSQ                    as PSQ
+import qualified Data.Sequence                  as Seq
+import qualified Data.Set                       as S
+import qualified Data.Text                      as T
+import qualified Data.Vector                    as V
+import qualified Linear                         as L
+import qualified Text.Megaparsec                as P
+import qualified Text.Megaparsec.Char           as P
+import qualified Text.Megaparsec.Char.Lexer     as PP
 
--- | Actual physical segment on the display
-newtype Segment = Segment { getSegment :: Finite 7 }
-  deriving stock (Eq, Ord, Show)
-  deriving newtype Finitary
-type Display = FinitarySet Segment
-
--- | abcdefg
-newtype Wire = Wire { getWire :: Finite 7 }
-  deriving stock (Eq, Ord, Show)
-  deriving newtype Finitary
-type Wires = FinitarySet Wire
-
--- | Map of wire displays to the digit they represent
-type OutputMap = Map Wires Int
-
-day08a :: [(FinitarySet Wires, [Wires])] :~> Int
+day08a :: _ :~> _
 day08a = MkSol
-    { sParse = traverseLines parseLine
+    { sParse = Just . lines
     , sShow  = show
-    , sSolve = Just . sum . map (countTrue isUnique . snd)
+    , sSolve = Just
     }
-  where
-    isUnique xs = FS.length xs `S.member` uniques
-      where
-        uniques = S.fromList [2,4,3,7]
 
--- | Map of all 9-digit observations to OutputMap they represent
-observationsMap :: Map (FinitarySet Wires) OutputMap
-observationsMap = M.fromList do
-    perm <- permutations $ Wire <$> finites
-    let mp  = M.fromList $ zip (Segment <$> finites) perm
-        visible = (FS.map . FS.map) (mp M.!) signalSet
-        outputMap = M.fromList do
-          (a, sig) <- M.toList signals
-          pure (FS.map (mp M.!) sig, a)
-    pure (visible, outputMap)
-  where
-    signalSet = FS.fromList (toList signals)
-
-signals :: Map Int Display
-signals = M.fromList . zip [0..] . map (FS.fromList . map Segment) $
-    [ [0,1,2,4,5,6]
-    , [2,5]
-    , [0,2,3,4,6]
-    , [0,2,3,5,6]
-    , [1,2,3,5]
-    , [0,1,3,5,6]
-    , [0,1,3,4,5,6]
-    , [0,2,5]
-    , [0,1,2,3,4,5,6]
-    , [0,1,2,3,5,6]
-    ]
-
-day08b :: [(FinitarySet Wires, [Wires])] :~> Int
+day08b :: _ :~> _
 day08b = MkSol
-    { sParse = traverseLines parseLine
+    { sParse = sParse day08a
     , sShow  = show
-    , sSolve = fmap (fmap sum) . traverse $ \(xs, ys) -> do
-        outputMap <- M.lookup xs observationsMap
-        [a,b,c,d] <- traverse (`M.lookup` outputMap) ys
-        pure (a*1000+b*100+c*10+d)
+    , sSolve = Just
     }
-
-
-
-
-
-parseLine :: String -> Maybe (FinitarySet Wires, [Wires])
-parseLine = fmap (first FS.fromList)
-          . listTup
-          . map (map toWires . words)
-          . splitOn " | "
-  where
-    toWires :: String -> Wires
-    toWires = FS.fromList . mapMaybe (preview _CharWire)
-    -- | Parse a Char as a Wire, for type safety
-    _CharWire :: Prism' Char Wire
-    _CharWire = prism'
-                  (\(Wire w) -> chr $ fromIntegral (getFinite w) + ord 'a')
-                  (\c -> Wire <$> packFinite (fromIntegral (ord c - ord 'a')))

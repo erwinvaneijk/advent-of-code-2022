@@ -28,19 +28,19 @@ import qualified HTMLEntities.Text                      as H
 
 -- CONSTANTS
 year :: Integer
-year = 2021
+year = 2022
 github :: String
 github = "mstksg"
 otherYears :: S.Set Integer
-otherYears = S.fromList [2016 .. 2021]
+otherYears = S.fromList [2016 .. 2022]
 
 ctx0 :: M.Map Text Text
 ctx0 = M.fromList [
     ("year"  , T.pack (show year)                                   )
   , ("github", T.pack github                                        )
-  , ("name"  , "Justin Le"                                          )
-  , ("email" , "justin@jle.im"                                      )
-  , ("rss"   , "http://feeds.feedburner.com/jle-advent-of-code-2021")
+  , ("name"  , "Erwin van Eijk"                                          )
+  , ("email" , "eijk@acm.org"                                      )
+  , ("rss"   , "http://feeds.feedburner.com/jle-advent-of-code-2022")
   , ("other_years", yearLinks                                       )
   ]
 

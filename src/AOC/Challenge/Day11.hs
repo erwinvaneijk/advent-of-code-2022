@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unused-imports   #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 -- |
 -- Module      : AOC.Challenge.Day11
 -- License     : BSD3
@@ -5,65 +8,53 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Day 11.  See "AOC.Solver" for the types used in this module!
+-- Day ${day_short}.  See "AOC.Solver" for the types used in this module!
+--
+-- After completing the challenge, it is recommended to:
+--
+-- *   Replace "AOC.Prelude" imports to specific modules (with explicit
+--     imports) for readability.
+-- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
+--     pragmas.
+-- *   Replace the partial type signatures underscores in the solution
+--     types @_ :~> _@ with the actual types of inputs and outputs of the
+--     solution.  You can delete the type signatures completely and GHC
+--     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day11 (
-    day11a
-  , day11b
+    -- day11a
+  -- , day11b
   ) where
 
-import           AOC.Common       (firstJust, freqs, (!!!), digitToIntSafe)
-import           AOC.Common.Point (Point, fullNeighbs, parseAsciiMap)
-import           AOC.Solver       ((:~>)(..))
-import           Control.Monad    (guard)
-import           Data.List        (unfoldr, scanl')
-import           Data.Map         (Map)
-import           Data.Set         (Set)
-import qualified Data.Map         as M
-import qualified Data.Set         as S
+import           AOC.Prelude
 
-type SquidGame = Map Point Int
-type FreqMap = Map Point Int
+import qualified Data.Graph.Inductive           as G
+import qualified Data.IntMap                    as IM
+import qualified Data.IntSet                    as IS
+import qualified Data.List.NonEmpty             as NE
+import qualified Data.List.PointedList          as PL
+import qualified Data.List.PointedList.Circular as PLC
+import qualified Data.Map                       as M
+import qualified Data.OrdPSQ                    as PSQ
+import qualified Data.Sequence                  as Seq
+import qualified Data.Set                       as S
+import qualified Data.Text                      as T
+import qualified Data.Vector                    as V
+import qualified Linear                         as L
+import qualified Text.Megaparsec                as P
+import qualified Text.Megaparsec.Char           as P
+import qualified Text.Megaparsec.Char.Lexer     as PP
 
-day11a :: SquidGame :~> Int
+day11a :: _ :~> _
 day11a = MkSol
-    { sParse = Just . parseAsciiMap digitToIntSafe
+    { sParse = Just . lines
     , sShow  = show
-    , sSolve = Just . (!!! 100) . scanl' (+) 0 . map sum . doTheThing
+    , sSolve = Just
     }
 
-doTheThing :: SquidGame -> [FreqMap]
-doTheThing = unfoldr (Just . fullStep)
-
-fullStep :: SquidGame -> (FreqMap, SquidGame)
-fullStep mp = (fl, mp'')
-  where
-    (fl, mp') = runAllFlashes $ fmap (+1) mp
-    mp'' = (0 <$ fl) `M.union` mp'
-
-runAllFlashes :: SquidGame -> (FreqMap, SquidGame)
-runAllFlashes = go M.empty
-  where
-    go n mp
-        | S.null fl = (n, mp')
-        | otherwise = go (M.unionWith (+) (M.fromSet (const 1) fl) n) mp'
-      where
-        (fl, mp') = runFlash mp
-
-runFlash :: SquidGame -> (Set Point, SquidGame)
-runFlash mp = (readyToFlash, M.unionWith (+) neighbs noFlash)
-  where
-    (yesFlash, noFlash) = M.partition (> 9) mp
-    readyToFlash = M.keysSet yesFlash
-    neighbs = (`M.restrictKeys` M.keysSet noFlash) . freqs $ foldMap fullNeighbs readyToFlash
-
-day11b :: SquidGame :~> Int
+day11b :: _ :~> _
 day11b = MkSol
     { sParse = sParse day11a
     , sShow  = show
-    , sSolve = \mp ->
-        firstJust (\(i, q) -> i <$ guard (M.keysSet q == M.keysSet mp))
-          . zip [1..]
-          . doTheThing
-          $ mp
+    , sSolve = Just
     }

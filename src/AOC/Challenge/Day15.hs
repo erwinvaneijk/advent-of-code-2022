@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unused-imports   #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 -- |
 -- Module      : AOC.Challenge.Day15
 -- License     : BSD3
@@ -5,52 +8,53 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Day 15.  See "AOC.Solver" for the types used in this module!
+-- Day ${day_short}.  See "AOC.Solver" for the types used in this module!
+--
+-- After completing the challenge, it is recommended to:
+--
+-- *   Replace "AOC.Prelude" imports to specific modules (with explicit
+--     imports) for readability.
+-- *   Remove the @-Wno-unused-imports@ and @-Wno-unused-top-binds@
+--     pragmas.
+-- *   Replace the partial type signatures underscores in the solution
+--     types @_ :~> _@ with the actual types of inputs and outputs of the
+--     solution.  You can delete the type signatures completely and GHC
+--     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day15 (
-    day15a
-  , day15b
+    -- day15a
+  -- , day15b
   ) where
 
-import           AOC.Common        (digitToIntSafe)
-import           AOC.Common.Point  (Point, V2(..), parseAsciiMap, mannDist, cardinalNeighbsSet)
-import           AOC.Common.Search (aStar)
-import           AOC.Solver        ((:~>)(..))
-import           Control.Monad     ((<=<))
-import           Data.Finite       (Finite, packFinite)
-import           Data.Map          (Map)
-import qualified Data.Map          as M
-import qualified Data.Set          as S
+import           AOC.Prelude
 
-type Risk = Finite 9
+import qualified Data.Graph.Inductive           as G
+import qualified Data.IntMap                    as IM
+import qualified Data.IntSet                    as IS
+import qualified Data.List.NonEmpty             as NE
+import qualified Data.List.PointedList          as PL
+import qualified Data.List.PointedList.Circular as PLC
+import qualified Data.Map                       as M
+import qualified Data.OrdPSQ                    as PSQ
+import qualified Data.Sequence                  as Seq
+import qualified Data.Set                       as S
+import qualified Data.Text                      as T
+import qualified Data.Vector                    as V
+import qualified Linear                         as L
+import qualified Text.Megaparsec                as P
+import qualified Text.Megaparsec.Char           as P
+import qualified Text.Megaparsec.Char.Lexer     as PP
 
-day15 :: (Map Point Risk -> Map Point Risk) -> Map Point Risk :~> Int
-day15 reMap = MkSol
-    { sParse = Just . parseAsciiMap (packFinite . subtract 1 . fromIntegral <=< digitToIntSafe)
+day15a :: _ :~> _
+day15a = MkSol
+    { sParse = Just . lines
     , sShow  = show
-    , sSolve = \mp0 ->
-        let mp        = reMap mp0
-            (targ, _) = M.findMax mp
-            cost p    = fromIntegral (mp M.! p) + 1
-        in  fst <$> aStar
-                (mannDist targ)
-                (M.fromSet cost . S.intersection (M.keysSet mp) . cardinalNeighbsSet)
-                0
-                (== targ)
+    , sSolve = Just
     }
 
-
-day15a :: Map Point Risk :~> Int
-day15a = day15 id
-
-day15b :: Map Point Risk :~> Int
-day15b = day15 \mp0 ->
-    let (corner, _) = M.findMax mp0
-        shifter     = corner + 1
-    in  M.fromList
-          [ (k', v + dx + dy)
-          | (k, v) <- M.toList mp0
-          , dx <- [0,1,2,3,4]
-          , dy <- [0,1,2,3,4]
-          , let k' = k + (shifter * (fromIntegral <$> V2 dx dy))
-          ]
+day15b :: _ :~> _
+day15b = MkSol
+    { sParse = sParse day15a
+    , sShow  = show
+    , sSolve = Just
+    }
