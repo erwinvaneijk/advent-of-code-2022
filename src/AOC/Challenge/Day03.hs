@@ -22,39 +22,62 @@
 --     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day03 (
-    -- day03a
-  -- , day03b
+                             day03a
+                           , day03b
+                           , parseInput
+                           , doubleItems
+                           , split
+                           , score
+                           , rucksacks
+                           , solveDay3
   ) where
 
-import           AOC.Prelude
-
-import qualified Data.Graph.Inductive           as G
-import qualified Data.IntMap                    as IM
-import qualified Data.IntSet                    as IS
-import qualified Data.List.NonEmpty             as NE
-import qualified Data.List.PointedList          as PL
-import qualified Data.List.PointedList.Circular as PLC
-import qualified Data.Map                       as M
-import qualified Data.OrdPSQ                    as PSQ
-import qualified Data.Sequence                  as Seq
+import           AOC.Solver ((:~>)(..))
+import Data.Char (ord)
 import qualified Data.Set                       as S
 import qualified Data.Text                      as T
-import qualified Data.Vector                    as V
-import qualified Linear                         as L
 import qualified Text.Megaparsec                as P
 import qualified Text.Megaparsec.Char           as P
 import qualified Text.Megaparsec.Char.Lexer     as PP
 
-day03a :: _ :~> _
+parseInput :: String -> Maybe [String]
+parseInput s = Just $ lines s
+
+split :: [a] -> ([a], [a])
+split l = splitAt (((length l) + 1) `div` 2) l
+
+priority :: Char -> Int
+priority x
+  | x>='a' && x <= 'z' = 1 + (ord x) - (ord 'a')
+  | x>='A' && x <= 'Z' = 27 + (ord x) - (ord 'A')
+  | otherwise = 0
+
+score :: [Char] -> Int
+score = sum . map priority
+
+-- split the input in two equal sizes
+rucksacks :: [a] -> ([a], [a])
+rucksacks = split
+
+doubleItems :: Ord a => ([a], [a]) -> [a]
+doubleItems rs = S.toList $ sl `S.intersection` sr
+    where
+        sl = S.fromList $ fst rs
+        sr = S.fromList $ snd rs
+
+solveDay3 :: [String] -> Int
+solveDay3 = sum . map (score . doubleItems . rucksacks)
+
+day03a :: [String] :~> Int
 day03a = MkSol
-    { sParse = Just . lines
+    { sParse = parseInput
     , sShow  = show
-    , sSolve = Just
+    , sSolve = Just . solveDay3
     }
 
-day03b :: _ :~> _
+day03b :: [String] :~> Int
 day03b = MkSol
-    { sParse = sParse day03a
+    { sParse = parseInput
     , sShow  = show
-    , sSolve = Just
+    , sSolve = Just . solveDay3
     }
