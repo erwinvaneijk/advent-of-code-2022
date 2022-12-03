@@ -14,7 +14,6 @@ module AOC.Challenge.Day01 (
   ) where
 
 import           AOC.Solver ((:~>)(..))
-import           AOC.Common (laggedPairs, countTrue)
 import           Data.Maybe (fromJust)
 import           Data.List (sort)
 import           Data.List.Split (splitWhen)

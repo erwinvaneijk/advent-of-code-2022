@@ -29,13 +29,15 @@ module AOC.Challenge.Day03 (
                            , split
                            , score
                            , rucksacks
-                           , solveDay3
+                           , solveDay3a
+                           , solveDay3b
   ) where
 
 import           AOC.Solver ((:~>)(..))
 import Data.Char (ord)
 import qualified Data.Set                       as S
 import qualified Data.Text                      as T
+import qualified Data.List.Split                as LS
 import qualified Text.Megaparsec                as P
 import qualified Text.Megaparsec.Char           as P
 import qualified Text.Megaparsec.Char.Lexer     as PP
@@ -65,19 +67,29 @@ doubleItems rs = S.toList $ sl `S.intersection` sr
         sl = S.fromList $ fst rs
         sr = S.fromList $ snd rs
 
-solveDay3 :: [String] -> Int
-solveDay3 = sum . map (score . doubleItems . rucksacks)
+groupLabel :: [String] -> [Char]
+groupLabel rs = S.toList $ commonElement rs
+    where
+        commonElement [] = S.empty
+        commonElement [x] = S.fromList x
+        commonElement (x:xs) = S.fromList x `S.intersection` (commonElement xs)  
+
+solveDay3a :: [String] -> Int
+solveDay3a = sum . map (score . doubleItems . rucksacks)
+
+solveDay3b :: [String] -> Int
+solveDay3b ls = sum $ map (score . groupLabel) (LS.chunksOf 3 ls)
 
 day03a :: [String] :~> Int
 day03a = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . solveDay3
+    , sSolve = Just . solveDay3a
     }
 
 day03b :: [String] :~> Int
 day03b = MkSol
     { sParse = parseInput
     , sShow  = show
-    , sSolve = Just . solveDay3
+    , sSolve = Just . solveDay3b
     }
