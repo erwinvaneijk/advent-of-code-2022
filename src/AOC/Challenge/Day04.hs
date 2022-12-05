@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
@@ -22,47 +21,30 @@
 --     will recommend what should go in place of the underscores.
 
 module AOC.Challenge.Day04
-  ( day04a
-  , day04b
-  ) where
+    ( day04a
+    , day04b
+    ) where
 
-import           AOC.Prelude
-
+import           AOC.Solver                     ( (:~>)(..) )
 import           Data.ExtendedReal
-import qualified Data.Graph.Inductive          as G
-import qualified Data.IntMap                   as IM
-import qualified Data.IntSet                   as IS
 import qualified Data.IntegerInterval          as I
-import           Data.IntegerInterval           ( (<=..<=)
-                                                )
+import           Data.IntegerInterval           ( (<=..<=) )
 import qualified Data.IntervalRelation         as IR
-import qualified Data.List.NonEmpty            as NE
-import qualified Data.List.PointedList         as PL
-import qualified Data.List.PointedList.Circular
-                                               as PLC
-import qualified Data.Map                      as M
-import qualified Data.OrdPSQ                   as PSQ
-import qualified Data.Sequence                 as Seq
-import qualified Data.Set                      as S
-import qualified Data.Text                     as T
-import qualified Data.Vector                   as V
-import           Data.Void                      ( Void )
-import qualified Linear                        as L
-import qualified Text.Megaparsec               as P
-import qualified Text.Megaparsec.Char          as P
-import qualified Text.Megaparsec.Char.Lexer    as PP
+import           Data.List.Split                ( wordsBy )
+import           Data.Maybe                     ( fromJust )
+import           Text.Read                      ( readMaybe )
 
 stringToCoord :: [String] -> I.IntegerInterval
 stringToCoord as = (Finite (coords !! 0)) <=..<= (Finite (coords !! 1))
- where
-  coords = map sToItem as
-  sToItem :: String -> Integer
-  sToItem = fromJust . readMaybe
+    where
+        coords = map sToItem as
+        sToItem :: String -> Integer
+        sToItem = fromJust . readMaybe
 
 itemSplit :: String -> (I.IntegerInterval, I.IntegerInterval)
 itemSplit s = (coords !! 0, coords !! 1)
- where
-  coords = map stringToCoord $ map (wordsBy (== '-')) $ wordsBy (== ',') s
+    where
+        coords = map stringToCoord $ map (wordsBy (== '-')) $ wordsBy (== ',') s
 
 parse :: String -> [(I.IntegerInterval, I.IntegerInterval)]
 parse = map itemSplit . lines
@@ -72,16 +54,33 @@ containedIn (x, y) = I.isSubsetOf x y || I.isSubsetOf y x
 
 -- This is a bit convoluted, but I wanted to use this relate operation
 overlaps :: (I.IntegerInterval, I.IntegerInterval) -> Bool
-overlaps (x, y) = I.relate x y `elem` [IR.Overlaps, IR.Starts, IR.During, IR.Equal, IR.Contains, IR.Finishes] || 
-                  I.relate y x `elem` [IR.Overlaps, IR.Starts, IR.During, IR.Equal, IR.Contains, IR.Finishes]
+overlaps (x, y) =
+    I.relate x y
+    `elem` [ IR.Overlaps
+           , IR.Starts
+           , IR.During
+           , IR.Equal
+           , IR.Contains
+           , IR.Finishes
+           ]
+    ||
+    I.relate y x
+    `elem` [ IR.Overlaps
+           , IR.Starts
+           , IR.During
+           , IR.Equal
+           , IR.Contains
+           , IR.Finishes
+           ]
+
 day04a :: _ :~> _
 day04a = MkSol { sParse = Just . parse
-               , sShow  = show
-               , sSolve = Just . length . filter containedIn
-               }
+  , sShow  = show
+  , sSolve = Just . length . filter containedIn
+  }
 
 day04b :: _ :~> Int
 day04b = MkSol { sParse = Just . parse
-               , sShow  = show
-               , sSolve = Just . length . filter overlaps
-               }
+  , sShow  = show
+  , sSolve = Just . length . filter overlaps
+  }

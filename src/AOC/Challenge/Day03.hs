@@ -38,9 +38,6 @@ import Data.Char (ord)
 import qualified Data.Set                       as S
 import qualified Data.Text                      as T
 import qualified Data.List.Split                as LS
-import qualified Text.Megaparsec                as P
-import qualified Text.Megaparsec.Char           as P
-import qualified Text.Megaparsec.Char.Lexer     as PP
 
 parseInput :: String -> Maybe [String]
 parseInput s = Just $ lines s
