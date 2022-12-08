@@ -66,6 +66,7 @@ common common-options
     , hpack
     , lens
     , linear
+    , matrix
     , megaparsec
     , microlens-th
     , monoid-extras
