@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
-
 -- |
 -- Module      : AOC.Challenge.Day10
 -- License     : BSD3
@@ -20,41 +17,67 @@
 --     types @_ :~> _@ with the actual types of inputs and outputs of the
 --     solution.  You can delete the type signatures completely and GHC
 --     will recommend what should go in place of the underscores.
+module AOC.Challenge.Day10
+  ( day10a,
+    day10b,
+    parse,
+    transgression,
+    interestingPeriods,
+    solve1,
+    render,
+    solve2,
+  )
+where
 
-module AOC.Challenge.Day10 (
-    -- day10a
-  -- , day10b
-  ) where
+import AOC.Solver ((:~>) (..))
+import Advent.OCR (asciiMapToLetters)
+import Data.List.Split (chunksOf)
+import Data.Maybe (fromMaybe)
+import qualified Data.Set as S
 
-import           AOC.Prelude
+valueTranslator :: (Int, String) -> (Int, Int)
+valueTranslator (x, "noop") = (x, 0)
+valueTranslator (x, "addx") = (x, 0)
+valueTranslator (x, v) = (x, read v :: Int)
 
-import qualified Data.Graph.Inductive           as G
-import qualified Data.IntMap                    as IM
-import qualified Data.IntSet                    as IS
-import qualified Data.List.NonEmpty             as NE
-import qualified Data.List.PointedList          as PL
-import qualified Data.List.PointedList.Circular as PLC
-import qualified Data.Map                       as M
-import qualified Data.OrdPSQ                    as PSQ
-import qualified Data.Sequence                  as Seq
-import qualified Data.Set                       as S
-import qualified Data.Text                      as T
-import qualified Data.Vector                    as V
-import qualified Linear                         as L
-import qualified Text.Megaparsec                as P
-import qualified Text.Megaparsec.Char           as P
-import qualified Text.Megaparsec.Char.Lexer     as PP
+parse :: String -> [(Int, Int)]
+parse xs = zipWith (curry valueTranslator) [1 ..] (words xs)
 
-day10a :: _ :~> _
-day10a = MkSol
-    { sParse = Just . lines
-    , sShow  = show
-    , sSolve = Just
+transgression :: [(Int, Int)] -> [(Int, Int)]
+transgression = init . scanl (\acc y -> (fst y, snd y + snd acc)) (0, 1)
+
+interestingPeriods :: [(Int, Int)] -> [Int]
+interestingPeriods xs = map (uncurry (*)) $ filter (isPeriod . fst) xs
+  where
+    isPeriod :: Int -> Bool
+    isPeriod = (== 20) . (`mod` 40)
+
+solve1 :: [(Int, Int)] -> Int
+solve1 = sum . interestingPeriods . map (\(x, y) -> (x + 1, y)) . transgression
+
+render :: [(Int, Int)] -> String
+render = unlines . map (map renderPixel) . chunksOf 40
+  where
+    renderPixel (idx, x) = if abs (idx `mod` 40 - x) <= 1 then '#' else ' '
+
+ocrText :: String -> String
+ocrText = fromMaybe "" . asciiMapToLetters (S.singleton '#')
+
+solve2 :: [(Int, Int)] -> String
+solve2 states = ocrText $ render $ transgression states
+
+day10a :: [(Int, Int)] :~> Int
+day10a =
+  MkSol
+    { sParse = Just . parse,
+      sShow = show,
+      sSolve = Just . solve1
     }
 
-day10b :: _ :~> _
-day10b = MkSol
-    { sParse = sParse day10a
-    , sShow  = show
-    , sSolve = Just
+day10b :: [(Int, Int)] :~> String
+day10b =
+  MkSol
+    { sParse = Just . parse,
+      sShow = show,
+      sSolve = Just . solve2
     }
