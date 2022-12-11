@@ -23,7 +23,7 @@ module AOC.Challenge.Day03
     ) where
 
 import AOC.Solver ((:~>)(..))
-import Data.Char (ord)
+import Data.Char (isAsciiLower, isAsciiUpper, ord)
 import qualified Data.List.Split as LS
 import qualified Data.Set as S
 import qualified Data.Text as T

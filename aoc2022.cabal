@@ -157,7 +157,7 @@ common common-options
     UndecidableInstances
     ViewPatterns
 
-library
+library aoc2022-lib
   import:          common-options
   exposed-modules:
     AOC
@@ -204,8 +204,6 @@ library
   other-modules:   Paths_aoc2022
   hs-source-dirs:  src
   other-modules:   Paths_aoc2022
-  build-depends:
-    , split
 
 executable aoc2022
   import:           common-options
@@ -213,7 +211,7 @@ executable aoc2022
   hs-source-dirs:   app
   build-depends:
     , ansi-terminal
-    , aoc2022
+    , aoc2022-lib
     , base                  >=4.7 && <5
     , containers
     , deepseq
@@ -234,7 +232,7 @@ test-suite aoc2022-test
   ghc-options:      -threaded -rtsopts -with-rtsopts=-N
   build-depends:
     , ansi-terminal
-    , aoc2022
+    , aoc2022-lib
     , base           >=4.7 && <5
     , mtl
 
