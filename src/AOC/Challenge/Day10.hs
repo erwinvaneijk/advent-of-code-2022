@@ -18,12 +18,11 @@
 --     solution.  You can delete the type signatures completely and GHC
 --     will recommend what should go in place of the underscores.
 module AOC.Challenge.Day10
-  ( day10a,
-    day10b,
-  )
-where
+    ( day10a
+    , day10b
+    ) where
 
-import AOC.Solver ((:~>) (..))
+import AOC.Solver ((:~>)(..))
 import Advent.OCR (asciiMapToLetters)
 import Data.List.Split (chunksOf)
 import Data.Maybe (fromMaybe)
@@ -52,7 +51,10 @@ solve1 = sum . interestingPeriods . map (\(x, y) -> (x + 1, y)) . transgression
 render :: [(Int, Int)] -> String
 render = unlines . map (map renderPixel) . chunksOf 40
   where
-    renderPixel (idx, x) = if abs (idx `mod` 40 - x) <= 1 then '#' else ' '
+    renderPixel (idx, x) =
+        if abs (idx `mod` 40 - x) <= 1
+            then '#'
+            else ' '
 
 ocrText :: String -> String
 ocrText = fromMaybe "" . asciiMapToLetters (S.singleton '#')
@@ -61,17 +63,7 @@ solve2 :: [(Int, Int)] -> String
 solve2 states = ocrText $ render $ transgression states
 
 day10a :: [(Int, Int)] :~> Int
-day10a =
-  MkSol
-    { sParse = Just . parse,
-      sShow = show,
-      sSolve = Just . solve1
-    }
+day10a = MkSol {sParse = Just . parse, sShow = show, sSolve = Just . solve1}
 
 day10b :: [(Int, Int)] :~> String
-day10b =
-  MkSol
-    { sParse = Just . parse,
-      sShow = show,
-      sSolve = Just . solve2
-    }
+day10b = MkSol {sParse = Just . parse, sShow = show, sSolve = Just . solve2}

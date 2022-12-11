@@ -7,26 +7,24 @@
 --
 -- Day 1.  See "AOC.Solver" for the types used in this module!
 --
+module AOC.Challenge.Day01
+    ( day01a
+    , day01b
+    ) where
 
-module AOC.Challenge.Day01 (
-    day01a
-  , day01b
-  ) where
-
-import           AOC.Solver ((:~>)(..))
-import           Data.Maybe (fromJust)
-import           Data.List (sort)
-import           Data.List.Split (splitWhen)
-import           Text.Read (readMaybe)
+import AOC.Solver ((:~>)(..))
+import Data.List (sort)
+import Data.List.Split (splitWhen)
+import Data.Maybe (fromJust)
+import Text.Read (readMaybe)
 
 stringToMaybeNumber :: String -> Int
 stringToMaybeNumber s
-  | length s == 0 = -1
-  | otherwise     = fromJust (readMaybe s :: Maybe Int)
+    | null s = -1
+    | otherwise = fromJust (readMaybe s :: Maybe Int)
 
 parseInput :: String -> Maybe [[Int]]
---parseInput = traverse readMaybe . lines
-parseInput = Just . splitWhen (<0) . map stringToMaybeNumber . lines
+parseInput = Just . splitWhen (< 0) . map stringToMaybeNumber . lines
 
 elfWeights :: [[Int]] -> [Int]
 elfWeights = map sum
@@ -38,16 +36,12 @@ largestElves :: Int -> [[Int]] -> [Int]
 largestElves n xs = take n $ reverse $ sort $ elfWeights xs
 
 day01a :: [[Int]] :~> Int
-day01a = MkSol
-    { sParse = parseInput
-    , sShow  = show
-    , sSolve = Just . largestElf
-    }
+day01a = MkSol {sParse = parseInput, sShow = show, sSolve = Just . largestElf}
 
 day01b :: [[Int]] :~> Int
-day01b = MkSol
-    { sParse = parseInput
-    , sShow  = show
-    , sSolve = Just . sum . largestElves 3
-    }
-
+day01b =
+    MkSol
+        { sParse = parseInput
+        , sShow = show
+        , sSolve = Just . sum . largestElves 3
+        }

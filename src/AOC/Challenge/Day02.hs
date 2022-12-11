@@ -17,14 +17,13 @@
 --     types @_ :~> _@ with the actual types of inputs and outputs of the
 --     solution.  You can delete the type signatures completely and GHC
 --     will recommend what should go in place of the underscores.
-
 module AOC.Challenge.Day02
-  ( day02a
-  , day02b
-  ) where
+    ( day02a
+    , day02b
+    ) where
 
-import           AOC.Solver                     ( (:~>)(..) )
-import           Data.List.Split                ( splitOn )
+import AOC.Solver ((:~>)(..))
+import Data.List.Split (splitOn)
 
 -- A, X = Rock, 1
 -- B, Y = Paper, 2
@@ -40,7 +39,7 @@ rockPaperScissors ["B", "Z"] = 3 + 6
 rockPaperScissors ["C", "X"] = 1 + 6
 rockPaperScissors ["C", "Y"] = 2 + 0
 rockPaperScissors ["C", "Z"] = 3 + 3
-rockPaperScissors _          = -1
+rockPaperScissors _ = -1
 
 -- A = Rock, 1
 -- B = Paper, 2
@@ -56,8 +55,7 @@ rockPaperScissorsRules2 ["B", "Z"] = 3 + 6
 rockPaperScissorsRules2 ["C", "X"] = 2 + 0
 rockPaperScissorsRules2 ["C", "Y"] = 3 + 3
 rockPaperScissorsRules2 ["C", "Z"] = 1 + 6
-rockPaperScissorsRules2 _          = -1
-
+rockPaperScissorsRules2 _ = -1
 
 doGame1 :: [[String]] -> Int
 doGame1 xs = sum $ map rockPaperScissors xs
@@ -70,7 +68,7 @@ parseInput :: String -> Maybe [[String]]
 parseInput s = Just $ map (splitOn " ") $ lines s
 
 day02a :: [[String]] :~> Int
-day02a = MkSol { sParse = parseInput, sShow = show, sSolve = Just . doGame1 }
+day02a = MkSol {sParse = parseInput, sShow = show, sSolve = Just . doGame1}
 
 day02b :: [[String]] :~> Int
-day02b = MkSol { sParse = parseInput, sShow = show, sSolve = Just . doGame2 }
+day02b = MkSol {sParse = parseInput, sShow = show, sSolve = Just . doGame2}

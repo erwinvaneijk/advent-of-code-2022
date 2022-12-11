@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unused-imports   #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
-
 -- |
 -- Module      : AOC.Challenge.Day06
 -- License     : BSD3
@@ -20,34 +17,33 @@
 --     types @_ :~> _@ with the actual types of inputs and outputs of the
 --     solution.  You can delete the type signatures completely and GHC
 --     will recommend what should go in place of the underscores.
+module AOC.Challenge.Day06
+    ( day06a
+    , day06b
+    , findMarker
+    ) where
 
-module AOC.Challenge.Day06 (
-                             day06a
-                           , day06b
-                           , findMarker
-  ) where
-
-import           AOC.Solver                     ( (:~>)(..) )
-import           AOC.Common (slidingWindows)
-import qualified Data.Foldable                  as DF
-import qualified Data.Set                       as S
-import qualified Data.Text                      as T
+import AOC.Common (slidingWindows)
+import AOC.Solver ((:~>)(..))
+import qualified Data.Foldable as DF
+import qualified Data.Set as S
+import qualified Data.Text as T
 
 findMarker :: Int -> String -> Int
-findMarker n xs = n + (snd $ head $ uniqueWindows xs)
-    where
-        uniqueWindows fs = filter (\x -> n == S.size ( S.fromList $ DF.toList $ fst x)) $ zip (slidingWindows n fs) [0..]
+findMarker n xs = n + snd (head $ uniqueWindows xs)
+  where
+    uniqueWindows fs =
+        filter (\x -> n == S.size (S.fromList $ DF.toList $ fst x)) $
+        zip (slidingWindows n fs) [0 ..]
 
 day06a :: String :~> Int
-day06a = MkSol
-    { sParse = Just . head . lines
-    , sShow  = show
-    , sSolve = Just . findMarker 4
-    }
+day06a =
+    MkSol
+        { sParse = Just . head . lines
+        , sShow = show
+        , sSolve = Just . findMarker 4
+        }
 
 day06b :: _ :~> _
-day06b = MkSol
-    { sParse = sParse day06a
-    , sShow  = show
-    , sSolve = Just . findMarker 14
-    }
+day06b =
+    MkSol {sParse = sParse day06a, sShow = show, sSolve = Just . findMarker 14}
