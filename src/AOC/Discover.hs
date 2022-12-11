@@ -45,7 +45,7 @@ import           Data.Traversable
 import           Data.Void
 import           GHC.Exts
 import           Language.Haskell.Exts                  as E
-import           Language.Haskell.Names
+import           Language.Haskell.Names                 as S
 import           Language.Haskell.TH                    as TH
 import           Language.Haskell.TH.Datatype
 import           Language.Haskell.TH.Syntax             (TExp(..))
@@ -58,6 +58,7 @@ import qualified Distribution.Pretty as C
 import qualified Data.Map                               as M
 import qualified Distribution.PackageDescription        as C
 import qualified Distribution.PackageDescription.Parsec as C
+import qualified Distribution.Simple.PackageDescription as SP
 import qualified Distribution.Simple.Utils              as C
 import qualified Distribution.Verbosity                 as C
 import qualified Text.Megaparsec                        as P
@@ -176,7 +177,7 @@ getChallengeSpecs dir = do
 
 defaultExtensions :: IO [E.Extension]
 defaultExtensions = do
-    gpd <- C.readGenericPackageDescription C.silent =<< C.defaultPackageDesc C.silent
+    gpd <- SP.readGenericPackageDescription C.silent =<< C.defaultPackageDesc C.silent
     pure . map reExtension . foldMap (C.defaultExtensions . C.libBuildInfo) $ gpdLibraries gpd
   where
     gpdLibraries gpd =
@@ -190,9 +191,9 @@ moduleSolutions = (foldMap . foldMap) (maybeToList . isSolution)
                 . flip resolve M.empty
 
 
-isSolution :: Symbol -> Maybe ChallengeSpec
+isSolution :: S.Symbol -> Maybe ChallengeSpec
 isSolution s = do
-    Value _ (Ident _ n) <- pure s
+    S.Value _ (Ident _ n) <- pure s
     Right c             <- pure $ P.runParser challengeName "" n
     pure c
 

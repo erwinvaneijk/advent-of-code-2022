@@ -60,8 +60,8 @@ common common-options
     , groups
     , hashable
     , haskeline
-    , haskell-names
     , haskell-src-exts
+    , haskell-names
     , heredoc
     , hpack
     , lens
@@ -215,7 +215,6 @@ executable aoc2022
     , base                  >=4.7 && <5
     , containers
     , deepseq
-    , finite-typelits
     , microlens
     , mtl
     , optparse-applicative
