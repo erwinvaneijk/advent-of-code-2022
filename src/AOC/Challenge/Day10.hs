@@ -20,12 +20,6 @@
 module AOC.Challenge.Day10
   ( day10a,
     day10b,
-    parse,
-    transgression,
-    interestingPeriods,
-    solve1,
-    render,
-    solve2,
   )
 where
 
